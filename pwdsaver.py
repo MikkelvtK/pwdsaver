@@ -8,6 +8,13 @@ import sys
 PERSONAS = "personas"
 
 
+class ValidateExcel(argparse.Action):
+    def __call__(self, parser, namespace, values, option_string=None):
+        if not values.endswith(".xlsx"):
+            parser.error("Please enter a valid .xlsx file. Got: {}".format(values))
+        setattr(namespace, self.dest, values)
+
+
 def update_progress(n: int, m: int):
     """Writes the progress of the script to the terminal for feedback to the user.
 
@@ -27,9 +34,14 @@ def get_args() -> argparse.Namespace:
     Returns:
         argparse.Namespace: The parsed arguments
     """    
-    parser = argparse.ArgumentParser(description="Copy user personas to clipboard. Default behavior is to copy all data found.")
-    parser.add_argument("--user", type=str, nargs='?', const='arg_was_not_given', help="Get a specific user persona")
-    parser.add_argument("file", help="Input file")
+    parser = argparse.ArgumentParser(description="Copy user personas to clipboard. Default behavior \
+                                     is to copy all data found. Provide the application an xlsx file \
+                                     with a 'personas' sheet. Column 0 must contain the usernames and \
+                                     column 1 the passwords")
+    parser.add_argument("--user", type=str, nargs='?', 
+                        const='arg_was_not_given', help="Get a specific user persona")
+    parser.add_argument("file", help="Input file. Only accepts .xlsx files for now.", 
+                        action=ValidateExcel, type=str)
 
     return parser.parse_args()
 
